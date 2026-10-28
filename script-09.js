@@ -1,0 +1,24 @@
+
+window.OFFLINE_VIDEOS={"0":"asset-ac996f9327fee949.mp4","1":"asset-cb25dfb1841590c9.mp4","2":"asset-f97fc0cff84127b3.mp4","3":"asset-a7fe6739f5ce5302.mp4","4":"asset-3e2ee2e83abe0dfe.mp4","5":"asset-5f595eb36999e9e9.mp4"};
+window.FILM_EVIDENCE_ASSETS={"comparison":"asset-3e1ecf9dbb4eaf77.jpg","original":"asset-510e135bad5a447d.mp4"};
+'use strict';
+// Real source videos remain distinct from cartoon demonstrations and project claims.
+window.FILM_MEDIA=(()=>{
+ const entries=window.FILM_CONTENT.cases.map((item,i)=>{const video=document.createElement('video');video.playsInline=true;video.preload='metadata';video.muted=true;video.style.display='none';video.setAttribute('aria-hidden','true');video.src=window.OFFLINE_VIDEOS?.[i]||item.src;document.body.append(video);let poster=new Image();poster.src=window.CASE_POSTERS[i];const e={video,poster,error:false,blocked:false};video.addEventListener('error',()=>{e.error=true});video.addEventListener('seeked',()=>{if(window.STORY_PLAYER&&!window.STORY_PLAYER.running)window.STORY_PLAYER.redraw?.()});return e;});
+ let active=-1;
+ function indexForShot(s){if(s?.scene==='case-primary')return window.FILM_STATE.choice==='menu'?2:0;if(s?.scene==='case-secondary')return window.FILM_STATE.choice==='menu'?0:2;if(s?.scene==='case-branch')return 4;return -1}
+ function at(t){const shot=window.FILM_SHOTS.find(s=>t>=s.start&&t<s.end),i=indexForShot(shot);return i<0?null:{index:i,shot,local:t-shot.start,entry:entries[i]}}
+ function sync(t,playing,sound){const spec=at(t),i=spec?.index??-1;if(active!==i){entries.forEach(e=>{e.video.pause();e.video.muted=true});active=i;}if(!spec)return;const e=spec.entry,v=e.video;v.muted=!sound;v.volume=.65;if(e.error)return;const target=Math.min(spec.local,Math.max(0,(Number.isFinite(v.duration)?v.duration:window.FILM_CONTENT.cases[i].duration)-.05));if(v.readyState>=1&&Math.abs(v.currentTime-target)>(playing?.32:.035)){try{v.currentTime=target}catch{}}if(playing&&v.readyState>=2&&!v.ended&&!e.blocked){if(v.paused)v.play().catch(()=>{e.blocked=true})}else if(!playing)v.pause();}
+ function ready(t){const spec=at(t);if(!spec)return true;const e=spec.entry;if(e.error)return true;return e.video.readyState>=2&&!e.blocked&&!e.video.seeking}
+ async function seek(t){const spec=at(t);if(!spec)return;const e=spec.entry,v=e.video;if(e.error)return;if(v.readyState<1)await new Promise(resolve=>{let timer=setTimeout(resolve,7000);const done=()=>{clearTimeout(timer);resolve()};v.addEventListener('loadedmetadata',done,{once:true});v.addEventListener('error',done,{once:true});v.load()});const target=Math.min(spec.local,Math.max(0,(Number.isFinite(v.duration)?v.duration:window.FILM_CONTENT.cases[spec.index].duration)-.05));if(v.readyState>=1&&Math.abs(v.currentTime-target)>.035){await new Promise(resolve=>{let timer=setTimeout(resolve,4000);v.addEventListener('seeked',()=>{clearTimeout(timer);resolve()},{once:true});v.currentTime=target})}if(v.readyState<2||v.seeking)await new Promise(resolve=>{const started=performance.now();const poll=()=>{if((v.readyState>=2&&!v.seeking)||e.error||performance.now()-started>5000)resolve();else setTimeout(poll,30)};poll()})}
+ function frame(index,local){const e=entries[index];if(!window.STORY_PLAYER&&e.video.readyState>=1&&!e.video.seeking){const target=Math.min(local,Math.max(0,e.video.duration-.05));if(Math.abs(e.video.currentTime-target)>.4)try{e.video.currentTime=target}catch{}}return e.video.readyState>=2?e.video:e.poster}
+ function pause(){entries.forEach(e=>e.video.pause())}
+ return{at,indexForShot,sync,ready,seek,frame,pause,entries,async unlock(t){let s=at(t);if(!s)return;s.entry.blocked=false;try{await s.entry.video.play();return true}catch{s.entry.blocked=true;return false}}};
+})();
+
+// Export hooks: wait for the actual video frame and preserve source audio.
+window.__prepareRenderFrame=async frame=>{await window.FILM_MEDIA.seek(frame/FPS_DRAW);};
+let filmMediaAudioBuffers=null;
+window.prepareFilmMediaAudio=async()=>{if(filmMediaAudioBuffers)return;const ac=new OfflineAudioContext(2,1,48000),ids=[...new Set(window.FILM_SHOTS.filter(s=>s.scene.startsWith('case-')).map(s=>window.FILM_MEDIA.indexForShot(s)))];const decoded=await Promise.all(ids.map(async i=>{const src=window.OFFLINE_VIDEOS?.[i]||window.FILM_CONTENT.cases[i].src;const response=await fetch(src);if(!response.ok)throw Error('案例音轨加载失败：'+(i+1));return [i,await ac.decodeAudioData(await response.arrayBuffer())]}));filmMediaAudioBuffers=Object.fromEntries(decoded);};
+window.scheduleFilmMediaAudio=(ac,dest)=>{if(!filmMediaAudioBuffers)throw Error('案例音轨尚未准备');for(const shot of window.FILM_SHOTS.filter(s=>s.scene.startsWith('case-'))){const source=ac.createBufferSource(),gain=ac.createGain();source.buffer=filmMediaAudioBuffers[window.FILM_MEDIA.indexForShot(shot)];gain.gain.value=.65;source.connect(gain);gain.connect(dest);source.start(shot.start,0,Math.min(shot.dur,source.buffer.duration));}};
+
