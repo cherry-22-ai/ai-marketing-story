@@ -1,8 +1,8 @@
 
-window.FILM_PLAYBACK_VIDEOS={"0": "asset-eb64649c39b6150d.mp4", "1": "asset-24e9ab793e88bdd0.mp4", "2": "asset-bc48c590d05426a1.mp4", "3": "asset-06b9872bab85fe8a.mp4", "4": "asset-f7262011faecbb3d.mp4", "5": "asset-30f98077e6d81b5c.mp4"};
-window.FILM_PLAYBACK_EVIDENCE="asset-2c0c585123a9ffa8.mp4";
-window.OFFLINE_VIDEOS={"0":"asset-ac996f9327fee949.mp4","1":"asset-cb25dfb1841590c9.mp4","2":"asset-f97fc0cff84127b3.mp4","3":"asset-a7fe6739f5ce5302.mp4","4":"asset-3e2ee2e83abe0dfe.mp4","5":"asset-5f595eb36999e9e9.mp4"};
-window.FILM_EVIDENCE_ASSETS={"comparison":"asset-3e1ecf9dbb4eaf77.jpg","original":"asset-510e135bad5a447d.mp4"};
+window.FILM_PLAYBACK_VIDEOS={"0": "assets/videos/playback/case-01-eb64649c39b6150d.mp4", "1": "assets/videos/playback/case-02-24e9ab793e88bdd0.mp4", "2": "assets/videos/playback/case-03-bc48c590d05426a1.mp4", "3": "assets/videos/playback/case-04-06b9872bab85fe8a.mp4", "4": "assets/videos/playback/case-05-f7262011faecbb3d.mp4", "5": "assets/videos/playback/case-06-30f98077e6d81b5c.mp4"};
+window.FILM_PLAYBACK_EVIDENCE="assets/videos/playback/case-07-2c0c585123a9ffa8.mp4";
+window.OFFLINE_VIDEOS={"0":"assets/videos/originals/01-switch-meal-ac996f9327fee949.mp4","1":"assets/videos/originals/02-shwoo-atmosphere-cb25dfb1841590c9.mp4","2":"assets/videos/originals/03-dessert-menu-f97fc0cff84127b3.mp4","3":"assets/videos/originals/04-hotpot-opening-a7fe6739f5ce5302.mp4","4":"assets/videos/originals/05-afternoon-solo-3e2ee2e83abe0dfe.mp4","5":"assets/videos/originals/06-cooking-process-5f595eb36999e9e9.mp4"};
+window.FILM_EVIDENCE_ASSETS={"comparison":"assets/images/3e1ecf9dbb4eaf77.jpg","original":"assets/videos/originals/02-original-comparison-510e135bad5a447d.mp4"};
 'use strict';
 // Main-story previews are optimized for streaming; the gallery retains original files.
 window.FILM_MEDIA=(()=>{

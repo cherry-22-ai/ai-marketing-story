@@ -1,5 +1,5 @@
 
-window.FILM_MUSIC_DATA={"fluffing-a-duck":"asset-deac4b20614e8aad.mp3","carefree":"asset-91bdc00a9f9a6b7c.mp3"};
+window.FILM_MUSIC_DATA={"fluffing-a-duck":"assets/audio/deac4b20614e8aad.mp3","carefree":"assets/audio/91bdc00a9f9a6b7c.mp3"};
 'use strict';
 // Licensed recordings replace the repeating oscillator bed; see MUSIC-CREDITS.md.
 window.FILM_MUSIC_BUFFERS=null;let filmMusicPromise;
